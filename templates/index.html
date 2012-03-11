@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+    <title>Zendesk API Demo</title>
+    <meta name="description" content="" />
+    <meta name="author" content="" />
+    <link href="{{ MEDIA_URL }}css/bootstrap.css" rel="stylesheet">
+    <style type="text/css">
+      body {
+          padding-top: 60px;
+      }
+      .mainblock {
+          padding-top: 100px;
+      }
+    </style>
+    </head>
+    <body>
+      <div class="row">
+      <div class="span3 columns">
+          <p></p>
+        </div>
+      <div class="span12 columns">
+      <div id="navbarExample" class="navbar navbar-static">
+            <div class="navbar-inner">
+              <div class="container" style="width: auto;">
+                <a class="brand" href="{% url get_tickets %}">Zendesk API Demo</a>
+                <ul class="nav">
+                  <li class="dropdown">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown">Status <b class="caret"></b></a>
+                    <ul class="dropdown-menu">
+                      <li class=""><a href="{% url get_tickets_status 0 %}">New</a></li>
+                      <li class=""><a href="{% url get_tickets_status 1 %}">Open</a></li>
+		      <li class=""><a href="{% url get_tickets_status 2 %}">Pending</a></li>
+		      <li class=""><a href="{% url get_tickets_status 3 %}">Solved</a></li>
+		      <li class=""><a href="{% url get_tickets_status 4 %}">Closed</a></li>
+                      <li class="divider"></li>
+                      <li><a href="{% url get_tickets %}">All</a></li>
+                    </ul>
+                  </li>
+		  {% if status_id %}
+		  <li class="dropdown">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown">Order By <b class="caret"></b></a>
+                    <ul class="dropdown-menu">
+                      <li class=""><a href="{% url get_tickets_status status_id %}?group=created_at">created_at</a></li>
+                      <li class=""><a href="{% url get_tickets_status status_id %}?group=month">month</a></li>
+                      <li class="divider"></li>
+                      <li><a href="{% url get_tickets_status status_id %}?group=year">year</a></li>
+		 
+                    </ul>
+                  </li>
+		{% endif %}
+                </ul>
+              </div>
+            </div>
+          </div>
+	</div>
+	</div>
+      <div class="container mainblock">
+      {% if group %} 
+	{% ifequal group "year" %}
+	      {% regroup tickets by year as ticket_by_day %}
+	{% else %}{% ifequal group "month" %}
+	      {% regroup tickets by month as ticket_by_day %}
+	{% else %}
+	      {% regroup tickets by created_at as ticket_by_day %}
+	{% endifequal %}
+	{% endifequal %}
+            {% for days in ticket_by_day %}
+ 	     <p><b>{{ days.grouper }}</b></p>
+	 	     <table class="table table-striped">
+			<thead>
+			  <tr>
+			    <th style="width: 5%;">No.</th>
+			    <th>Subject</th>
+			    <th>Description</th>
+			    <th>Created At</th>
+			    <th>Status</th>
+			  </tr>
+			</thead>
+			<tbody>
+			  
+			 {% for ticket in days.list %}
+			  <tr>
+			    <td>
+			  	<span class="label">{{ forloop.counter }}</span>
+			    </td>
+			    <td>
+				<p>{{ ticket.subject }}</p>
+			    </td>
+			    <td>
+				<p>{{ ticket.description }}</p>
+			    </td>
+			    <td>
+				<p>{{ ticket.created_at }}</p>
+			    </td>
+			    <td>
+				<p>{{ ticket.status }}</p>
+			    </td>
+			  </tr>
+			  {% endfor %}
+			</tbody>
+			</table>
+		{% endfor %}
+      {% else %}
+	
+      <table class="table table-striped">
+        <thead>
+          <tr>
+            <th style="width: 5%;">No.</th>
+            <th>Subject</th>
+	    <th>Description</th>
+	    <th>Created At</th>
+	    <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+	  
+
+	  {% for ticket in tickets %}
+          <tr>
+	    <td>
+          	<span class="label">{{ forloop.counter }}</span>
+            </td>
+            <td>
+                <p>{{ ticket.subject }}</p>
+            </td>
+	    <td>
+                <p>{{ ticket.description }}</p>
+            </td>
+	    <td>
+                <p>{{ ticket.created_at }}</p>
+            </td>
+	    <td>
+                <p>{{ ticket.status }}</p>
+            </td>
+	    <td>
+                <a class="btn" href="{% url ticket_detail ticket.ticket_id %}">Detail</a>
+            </td>
+          </tr>
+	  {% endfor %}
+	</tbody>
+        </table>
+	{% endif %}
+   </div>
+   <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js" type="text/javascript"></script>
+   <script type="text/javascript" src="{{ MEDIA_URL }}js/bootstrap-dropdown.js"></script>
+   <script>
+	$('.dropdown-toggle').dropdown()
+   </script>
+  </body>
+</html>
+
